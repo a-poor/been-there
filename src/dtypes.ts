@@ -1,33 +1,14 @@
+import { PrismaClient } from '@prisma/client';
 
-export type UserID = number; // TODO: Update me?
+const client = new PrismaClient();
 
-export interface IUser {
-    id: UserID;
-    username: string;
-    // ...
+export function createUser({first, last}: {first: string, last: string}) {
+    return client.user.create({
+        data: {
+            firstName: first,
+            lastName: last,
+            email: `${first.toLowerCase()}.${last.toLowerCase()}@example.com`,
+            password: "Secr3t!",
+        },
+    });
 }
-
-export type PlaceID = number; // TODO: Update me?
-
-export type Placekey = string; // TODO: Update me?
-
-export interface IPlace {
-    id: PlaceID;
-    name: string;
-    location?: Placekey;
-    description?: string;
-    beenThere?: boolean;
-    interestLevel?: number; // or priority? Out of 5? 10? (before going)
-    rating?: number; // Out of 5? 10? (after going)
-    wouldGoAgain?: boolean; // If already visited
-    // ...
-}
-
-export type PlaceVisitID = number; // TODO: Update me?
-
-export interface IPlaceVisit { // TODO: Update me?
-    id: PlaceVisitID;
-    place: PlaceID;
-    // ...
-}
-

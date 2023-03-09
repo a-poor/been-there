@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           String          @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String          @unique
+  password     String
+  avatar       String?
+  createdAt    DateTime        @default(now())
+  registeredAt DateTime?
+  locations    Location[]
+  actions      Action[]
+  friendsFrom  FriendRequest[] @relation("FriendRequestsFrom")
+  friendsTo    FriendRequest[] @relation("FriendRequestsTo")
+}
+
+model Action {
+  id          String    @id @default(cuid())
+  name        String
+  owner       User      @relation(fields: [ownerId], references: [id])
+  ownerId     String
+  createdAt   DateTime  @default(now())
+  description String?
+  url         String?
+  locations   Location[]
+}
+
+model Location {
+  id          String   @id @default(cuid())
+  name        String
+  owner       User     @relation(fields: [ownerId], references: [id])
+  ownerId     String
+  createdAt   DateTime @default(now())
+  description String?
+  url         String?
+  actions     Action[]
+  placekey    String?
+}
+
+model FriendRequest {
+  requestFrom   User      @relation("FriendRequestsFrom", fields: [requestFromId], references: [id])
+  requestFromId String
+  requestTo     User      @relation("FriendRequestsTo", fields: [requestToId], references: [id])
+  requestToId   String
+  acceptedAt    DateTime?
+  @@unique([requestFromId, requestToId])
+}
+
