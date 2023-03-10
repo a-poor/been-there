@@ -10,50 +10,64 @@ datasource db {
   url      = "file:./dev.db"
 }
 
+// An application user
 model User {
-  id           String          @id @default(cuid())
+  id           String     @id @default(cuid())
   firstName    String
   lastName     String
-  email        String          @unique
+  email        String     @unique
   password     String
   avatar       String?
-  createdAt    DateTime        @default(now())
+  createdAt    DateTime   @default(now())
   registeredAt DateTime?
   locations    Location[]
-  actions      Action[]
-  friendsFrom  FriendRequest[] @relation("FriendRequestsFrom")
-  friendsTo    FriendRequest[] @relation("FriendRequestsTo")
+  visits       Visit[]
+  lists        List[]     @relation("OwnedList")
+  sharedLists  List[]     @relation("SharedList")
 }
 
-model Action {
-  id          String    @id @default(cuid())
-  name        String
-  owner       User      @relation(fields: [ownerId], references: [id])
-  ownerId     String
-  createdAt   DateTime  @default(now())
-  description String?
-  url         String?
-  locations   Location[]
-}
-
+// A place that a user has visited or wants to visit
 model Location {
-  id          String   @id @default(cuid())
-  name        String
-  owner       User     @relation(fields: [ownerId], references: [id])
-  ownerId     String
-  createdAt   DateTime @default(now())
-  description String?
-  url         String?
-  actions     Action[]
-  placekey    String?
+  id            String   @id @default(cuid())
+  name          String
+  owner         User     @relation(fields: [ownerId], references: [id])
+  ownerId       String
+  createdAt     DateTime @default(now())
+  description   String?
+  url           String?
+  placekey      String?
+  tags          LocationTag[]
+  visits        Visit[]
+  visitInterest Int     @default(3)
+  lists         List[]
 }
 
-model FriendRequest {
-  requestFrom   User      @relation("FriendRequestsFrom", fields: [requestFromId], references: [id])
-  requestFromId String
-  requestTo     User      @relation("FriendRequestsTo", fields: [requestToId], references: [id])
-  requestToId   String
-  acceptedAt    DateTime?
-  @@unique([requestFromId, requestToId])
+model LocationTag {
+  id        String     @id @default(cuid())
+  name      String
+  createdAt DateTime   @default(now())
+  locations Location[]
+}
+
+model Visit {
+  id           String    @id @default(cuid())
+  user         User      @relation(fields: [userId], references: [id])
+  userId       String
+  location     Location  @relation(fields: [locationId], references: [id])
+  locationId   String
+  createdAt    DateTime  @default(now())
+  visitedAt    DateTime?
+  rating       Int?
+  description  String?
+}
+
+model List {
+  id         String     @id @default(cuid())
+  name       String
+  owner      User       @relation("OwnedList", fields: [ownerId], references: [id])
+  ownerId    String
+  createdAt  DateTime   @default(now())
+  locations  Location[]
+  sharedWith User[]     @relation("SharedList")
 }
 
